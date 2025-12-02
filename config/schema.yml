@@ -1,0 +1,63 @@
+# Risk Control Data Warehouse Schema
+
+# Fact Tables
+fact_transactions:
+  - tx_id: string
+  - user_id: string
+  - merchant_id: string
+  - device_id: string
+  - event_time: timestamp
+  - event_date: date
+  - account_country: string
+  - ip_country: string
+  - ship_country: string
+  - amount: double
+  - currency: string
+  - amount_gbp: double
+  - payment_method: string
+  - channel: string
+  - product_type: string
+  - is_cross_border: boolean
+  - fx_rate_source: string
+
+fact_risk_events:
+  - risk_event_id: string
+  - tx_id: string
+  - user_id: string
+  - merchant_id: string
+  - risk_type: string  # e.g., fraud_alert, kyc_hit
+  - source_system: string  # e.g., rules_engine, manual_review
+  - created_at: timestamp
+
+# Dimension Tables
+dim_user:
+  - user_id: string
+  - kyc_level: string
+  - registration_country: string
+  - user_created_at: timestamp
+  - has_pep_hit: boolean
+  - has_sanctions_hit: boolean
+  - user_risk_tier: string
+
+dim_merchant:
+  - merchant_id: string
+  - merchant_country: string
+  - merchant_category: string
+  - merchant_risk_tier: string
+
+dim_device:
+  - device_id: string
+  - first_seen_at: timestamp
+  - device_type: string
+  - os: string
+  - is_emulator_flag: boolean
+
+dim_country:
+  - country_code: string
+  - is_high_risk_country: boolean
+  - region: string
+
+dim_payment_method:
+  - payment_method: string
+  - payment_type: string  # card, wallet, bank
+  - is_high_risk_method: boolean

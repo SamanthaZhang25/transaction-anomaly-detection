@@ -1,0 +1,42 @@
+# ETL Pipeline Settings
+
+# Paths
+raw_data_path: data/raw
+warehouse_path: data/warehouse
+parquet_output: data/warehouse/parquet
+
+# Spark Configuration
+spark:
+  app_name: risk_control_etl
+  master: local[*]
+  partitions: 4
+
+# FX Rates (simplified table for GBP conversion)
+fx_rates:
+  USD: 0.78
+  EUR: 0.85
+  CNY: 0.11
+
+# Risk Thresholds
+risk:
+  high_amount_threshold: 10000
+  high_frequency_threshold: 5  # transactions per hour
+  max_age_days: 30
+
+# High-Risk Countries (example list)
+high_risk_countries:
+  - "RU"
+  - "IR"
+  - "KP"
+  - "SY"
+
+# Data Quality Checks
+quality:
+  null_tolerance: 0.05
+  duplicate_tolerance: 0.01
+  schema_evolution: true
+
+# Partitioning
+partition_by:
+  - event_date
+  - account_country
