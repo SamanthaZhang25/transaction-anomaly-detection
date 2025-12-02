@@ -1,0 +1,99 @@
+# Risk Control Data Warehouse Schema (Star Schema Design)
+
+# Fact Tables
+fact_transactions:
+  columns:
+    - tx_id: string (PK)
+    - user_id: string (FK to dim_user)
+    - merchant_id: string (FK to dim_merchant)
+    - device_id: string (FK to dim_device)
+    - event_time: timestamp
+    - event_date: date (partition key)
+    - account_country: string (FK to dim_country)
+    - ip_country: string (FK to dim_country)
+    - ship_country: string (FK to dim_country)
+    - amount: double
+    - currency: string
+    - amount_gbp: double (normalized)
+    - payment_method: string (FK to dim_payment_method)
+    - channel: string (web, mobile, api)
+    - product_type: string (physical, digital, gift_card, top-up)
+    - is_cross_border: boolean
+    - fx_rate_source: string (source of exchange rate)
+
+  partition: [event_date, account_country]
+  indexes: [tx_id, user_id, event_time]
+
+fact_risk_events:
+  columns:
+    - risk_event_id: string (PK)
+    - tx_id: string (FK to fact_transactions)
+    - user_id: string (FK to dim_user)
+    - merchant_id: string (FK to dim_merchant)
+    - risk_type: string (fraud_alert, kyc_hit, sanctions_match, velocity_alert)
+    - source_system: string (rules_engine, manual_review, ml_model)
+    - created_at: timestamp
+    - risk_score: double (0-1)
+    - alert_reason: string (concatenated reasons)
+
+  partition: [created_at]
+  indexes: [tx_id, user_id, risk_type]
+
+# Dimension Tables
+dim_user:
+  columns:
+    - user_id: string (PK)
+    - kyc_level: string (unverified, basic, enhanced)
+    - registration_country: string (FK to dim_country)
+    - user_created_at: timestamp
+    - has_pep_hit: boolean
+    - has_sanctions_hit: boolean
+    - user_risk_tier: string (low, medium, high)
+    - account_age_days: int (derived)
+    - unresolved_tickets: int
+
+  indexes: [user_id, registration_country]
+
+
+dim_merchant:
+  columns:
+    - merchant_id: string (PK)
+    - merchant_country: string (FK to dim_country)
+    - merchant_category: string (electronics, fashion, services)
+    - merchant_risk_tier: string (low, medium, high)
+    - registration_date: timestamp
+    - verification_status: string (verified, pending, rejected)
+
+  indexes: [merchant_id, merchant_category]
+
+
+dim_device:
+  columns:
+    - device_id: string (PK)
+    - first_seen_at: timestamp
+    - device_type: string (mobile, desktop, tablet)
+    - os: string (iOS, Android, Windows, macOS)
+    - is_emulator_flag: boolean
+    - user_agent_hash: string
+
+  indexes: [device_id, first_seen_at]
+
+
+dim_country:
+  columns:
+    - country_code: string (PK, ISO 3166-1 alpha-2)
+    - is_high_risk_country: boolean
+    - region: string (Asia, Europe, North America, etc.)
+    - sanctions_level: string (none, partial, full)
+
+  indexes: [country_code]
+
+
+dim_payment_method:
+  columns:
+    - payment_method: string (PK, e.g., visa, paypal, wire)
+    - payment_type: string (card, wallet, bank_transfer)
+    - is_high_risk_method: boolean
+    - provider: string (issuer/provider)
+
+  indexes: [payment_method]
