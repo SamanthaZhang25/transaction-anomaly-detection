@@ -1,6 +1,6 @@
 # Risk Control Data Warehouse & ETL Pipeline
 
-This repository is a self-initiated **risk control data warehouse & ETL demo** for a cross-border e-commerce platform, inspired by JD.com / Joybuy–style use cases.
+This repository is a self-initiated **risk control data warehouse & ETL demo** for a cross-border e-commerce platform.
 
 The goal is to show how a Risk Control Data Engineer can:
 - design a **star-schema risk data warehouse**,
